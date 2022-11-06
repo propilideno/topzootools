@@ -261,7 +261,7 @@ def main():
         #TODO Update this to be true/false once netx fixes boolean quote bug
         if options.internal_only:
             external_nodes = [ n for n in graph.nodes()
-                              if graph.node[n]['Internal'] == 0]
+                              if graph.nodes[n]['Internal'] == 0]
             graph.remove_nodes_from(external_nodes)
         # ************
 
