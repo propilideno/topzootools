@@ -323,7 +323,7 @@ def main():
             graph = nx.read_gpickle(pickle_file)
         else:
             # No pickle file, or is outdated
-            graph = nx.read_gml(net_file,destringizer=int,label='id')
+            graph = nx.read_gml(net_file)
             nx.write_gpickle(graph, pickle_file)
 
         # handle problem if reading in with node_default or edge_default as list
@@ -384,8 +384,8 @@ def main():
         #TODO Update this to be true/false once netx fixes boolean quote bug
         if options.internal_only:
             external_nodes = [ n for n in graph.nodes()
-                              if ('Internal' in graph.nodes[n] and 
-                              graph.nodes[n]['Internal'] == 0)]
+                              if ('Internal' in graph.node[n] and 
+                              graph.node[n]['Internal'] == 0)]
             graph.remove_nodes_from(external_nodes)
         # ************
 
@@ -462,7 +462,7 @@ def main():
             from networkx.readwrite import json_graph
 # JSON writer doesn't handle 'id' already present in nodes
             for n in graph:
-                del graph.nodes[n]['id']
+                del graph.node[n]['id']
 
             json_file =  out_file + ".json" 
             with open( json_file, 'wb') as json_fh:
