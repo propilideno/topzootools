@@ -189,7 +189,7 @@ def plot_graph(G, output_path, title=False, use_bluemarble=False,
 # see if destination already exists
         if ((plt_filename_pdf and os.path.exists(plt_filename_pdf)) or 
                 (plt_filename_png and os.path.exists(plt_filename_png))):
-            print "Output file already exists for %s, skipping" % network_name
+            print("Output file already exists for %s, skipping" % network_name)
             return
 
 #TODO: make easy way to turn on/off custom geant plotting: use config settings?
@@ -224,8 +224,8 @@ def plot_graph(G, output_path, title=False, use_bluemarble=False,
                     G.node[ext_neigh]['Latitude'] = bound_lat + x
                     G.node[ext_neigh]['Longitude'] = bound_lon + y
             else:
-                print "no lat/lon for %s (%s)" % (G.node[bound_node]['label'],
-                                                  G.node[bound_node]['Network'])
+                print("no lat/lon for %s (%s)" % (G.node[bound_node]['label'],
+                                                  G.node[bound_node]['Network']))
                 # Don't plot ext connections from this node
                 ext_neighbors = [n for n in G.neighbors(bound_node) if n in
                                  external_nodes]
@@ -237,7 +237,7 @@ def plot_graph(G, output_path, title=False, use_bluemarble=False,
 
     # Sanity check don't try to infer location if no geocoded places
     if len(geocoded_cities) == 0:
-        print "No geocoded nodes in {0}, skipping".format(network_name)
+        print("No geocoded nodes in {0}, skipping".format(network_name))
         return 
 
     hyperedge_nodes = [ n for n, data in G.nodes(data = True)
@@ -346,7 +346,7 @@ def plot_graph(G, output_path, title=False, use_bluemarble=False,
 
     if inferred_hyperedge_present:
         # Awaiting feedback from supervisor meeting
-        print "Inferred hyperedges present"
+        print("Inferred hyperedges present")
         #return
 
     # Remove cities with no co-ords
@@ -509,8 +509,8 @@ def plot_graph(G, output_path, title=False, use_bluemarble=False,
                     urcrnrlat = urcrnrlat,  llcrnrlon = llcrnrlon,
                     urcrnrlon = urcrnrlon, lat_ts = lat_1)
 
-    except ZeroDivisionError, e:
-        print "Error {0}".format(e)
+    except ZeroDivisionError as e:
+        print("Error {0}".format(e))
         # Do the next map
         return
         
@@ -541,9 +541,9 @@ def plot_graph(G, output_path, title=False, use_bluemarble=False,
                 labels[n] =  data['label']
 
     if numeric_labels:
-        print "Labels:"
+        print("Labels:")
         for n, data in G.nodes(data = True):
-            print "%s: %s" % (n, data['label'])
+            print("%s: %s" % (n, data['label']))
 
     if not country_color.startswith("#"):
         country_color = "#" + country_color
@@ -554,7 +554,7 @@ def plot_graph(G, output_path, title=False, use_bluemarble=False,
     elif back_image:
         #TODO: while loop to catch memory error and try with lower scale
         #image_scale = 0.8
-        print "warp scale %s " % image_scale
+        print("warp scale %s " % image_scale)
         m.warpimage(image = back_image,
                    scale = image_scale)
     else:
@@ -664,7 +664,7 @@ def plot_graph(G, output_path, title=False, use_bluemarble=False,
                 speed_labels = dict( (speed, speed) for speed in speeds)
                 no_speed_edge_present = False # don't plot unknown on legend: TODO check this is ok
             else:
-                print "Edge labels enabled, but no link speeds found. Using ordering:", ", ".join(edge_labels)
+                print("Edge labels enabled, but no link speeds found. Using ordering:", ", ".join(edge_labels))
 
         if len(speeds) > 0:
             render_legend = True
@@ -866,7 +866,7 @@ def plot_graph(G, output_path, title=False, use_bluemarble=False,
                 # - may need to interpolate
                 #edge_color = 'r'
                 if len(break_index) > 1:
-                    print "Error: edge crosses map boundary more than once"
+                    print("Error: edge crosses map boundary more than once")
                     continue
                 m.plot(x[:break_index],y[:break_index], color = edge_color,
                        linewidth = curr_line_width,
@@ -1247,7 +1247,7 @@ def plot_graph(G, output_path, title=False, use_bluemarble=False,
 def main():
     # Sanity checking
     if not (options.pdf or options.eps or options.jpg or options.png):
-        print "No output format specified"
+        print("No output format specified")
         sys.exit(0)
 
     network_files = []
@@ -1266,7 +1266,7 @@ def main():
         if len(network_files) > 0:
             use_pickle = True
         else:
-            print "No files found. Please specify a -f file or -d directory"
+            print("No files found. Please specify a -f file or -d directory")
             sys.exit(0)
 
     if options.directory:
@@ -1312,11 +1312,11 @@ def main():
         # Extract name of network from file path
         path, filename = os.path.split(net_file)
         network_name, extension = os.path.splitext(filename)
-        print "Plotting: %s (%s/%s)"%(network_name,
+        print("Plotting: %s (%s/%s)"%(network_name,
                                       # Index starts at 0, offset else get 0/1
                                       index+1,
-                                      len(network_files))
-        print "reading %s " % net_file
+                                      len(network_files)))
+        print("reading %s " % net_file)
 
         pickle_file = "{0}/{1}.pickle".format(pickle_dir, network_name)
         if (os.path.isfile(pickle_file) and
@@ -1363,7 +1363,7 @@ def main():
 
     # try heatmap
     if options.heatmap:
-        print "Plotting heatmap"
+        print("Plotting heatmap")
         plt.clf()
         fig = plt.figure()
         # Create axes to allow adding of text relative to map
@@ -1398,8 +1398,8 @@ def main():
                         llcrnrlat = llcrnrlat,
                         urcrnrlat = urcrnrlat,  llcrnrlon = llcrnrlon,
                         urcrnrlon = urcrnrlon, lat_ts = lat_1, ax=ax)
-        except ZeroDivisionError, e:
-            print "Error {0}".format(e)
+        except ZeroDivisionError as e:
+            print("Error {0}".format(e))
 
         if options.bluemarble:
             m.bluemarble(scale = 0.8)

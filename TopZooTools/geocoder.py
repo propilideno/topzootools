@@ -12,7 +12,7 @@ import traceback
 
 import xml.etree.ElementTree as ET
 
-import cPickle
+import pickle as cPickle #Was cPicke in python2
 
 import urllib
 
@@ -23,9 +23,9 @@ import time
 import pprint as pp
 
 import threading
-from Queue import Queue
+import queue #Was Queue in python2
 
-import urllib2
+import urllib.request as urllib2 #Was urllib2 in python2
 
 #TODO: move cache and country handling into script
 
@@ -70,7 +70,7 @@ class FileGetter(threading.Thread):
                     if value is not None:
                         value = value.text
                         value = value.encode('utf-8')
-                except AttributeError, e:
+                except AttributeError as e:
                     # Problem with attribute, use default
                     self.logger.debug("AttributeError %s" % e)
                     value = ""
@@ -107,7 +107,7 @@ class FileGetter(threading.Thread):
                 else:
                     # Result is fine
                     break
-            except urllib2.HTTPError, e:
+            except urllib2.HTTPError as e:
                 self.logger.debug(e)
                 time.sleep(0.5)
     
@@ -129,7 +129,7 @@ class Geocoder(object):
         self.skip_cache = skip_cache
         if not geonames_username:
             #TODO: raise error
-            print "Username must be specified for GeoNames"
+            print("Username must be specified for GeoNames")
             return
         self.geonames_username = geonames_username
 
@@ -650,7 +650,7 @@ def main():
         network_files = glob.glob(options.directory + "*.gml")
 
     if len(network_files) == 0:
-        print "No files found. Please specify -f file or -d directory"
+        print("No files found. Please specify -f file or -d directory")
         sys.exit(0)
 
     if options.directory:
@@ -674,7 +674,7 @@ def main():
     for net_file in network_files:
         path, filename = os.path.split(net_file)
         network_name = os.path.splitext(filename)[0]
-        print "Reading: %s" % network_name
+        print("Reading: %s")% network_name
         #TODO: add cache support
         pickle_file = "%s%s%s.pickle"% (pickle_dir, os.sep, network_name)
         if (os.path.isfile(pickle_file) and
@@ -689,7 +689,7 @@ def main():
 
         graph = geocoder.geocode(graph)
         geocoder.save_cache()
-        gml_file =  "%s%s%s.gml"%s(output_path, os.sep, network_name)
+        gml_file =  "%s%s%s.gml"%(output_path, os.sep, network_name)
         nx.write_gml(graph, gml_file)
         print("Wrote to %s" % gml_file)
    

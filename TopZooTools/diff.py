@@ -21,14 +21,14 @@ def main():
     args = parser.parse_args()
     files = args.files
     if len(files) < 2:
-        print "Need at least two files to compare"
+        print("Need at least two files to compare")
         return
     if len(files) == 2:
         fileA, fileB = files
         compare(fileA, fileB)
     else:
 # sort chronologically
-        print "Loading graph metadata for chronological sorting"
+        print("Loading graph metadata for chronological sorting")
         network_date = {}
         for network_file in files:
             graph = nx.read_gml(network_file)
@@ -37,12 +37,12 @@ def main():
         pairs = [(a, b) for (a, b) in zip(files, files[1:])]
         for fileA, fileB in pairs:
             compare(fileA, fileB)
-            print "---------------"
+            print("---------------")
         
 # See if A is a wildcard -> glob
 
 def compare(fileA, fileB):
-    print "Comparing ", fileA, "to", fileB
+    print("Comparing ", fileA, "to", fileB)
     graphA = nx.read_gml(fileA)
 #Convert to single-edge, undirected
     #graphA = nx.Graph(graphA)
@@ -54,9 +54,9 @@ def compare(fileA, fileB):
     labelsB = [d.get("label") for n,d in graphB.nodes(data=True)]
     duplicateLabelsB = set( label for label in labelsB if label != "None" and labelsB.count(label) > 1 )
     if duplicateLabelsA:
-        print "Duplicate labels in graph A:", ", ".join(sorted(duplicateLabelsA))
+        print("Duplicate labels in graph A:", ", ".join(sorted(duplicateLabelsA)))
     if duplicateLabelsB:
-        print "Duplicate labels in graph B:", ", ".join(sorted(duplicateLabelsB))
+        print("Duplicate labels in graph B:", ", ".join(sorted(duplicateLabelsB)))
 
     # relabel hyperedges based on neighbors
     hyperedges_a = [n for n, d in graphA.nodes(data=True) if d.get("hyperedge")]
@@ -85,8 +85,8 @@ def compare(fileA, fileB):
     labels_removed = labelsA - labelsB # in A but not B
     labels_added = labelsB - labelsA # in B but not A
     labels_common = labelsA & labelsB
-    print "Nodes added:", ", ".join(sorted(labels_added))
-    print "Nodes removed:", ", ".join(sorted(labels_removed))
+    print("Nodes added:", ", ".join(sorted(labels_added)))
+    print("Nodes removed:", ", ".join(sorted(labels_removed)))
 # and find the nodes which were added/removed (inverse mapping)
     nodes_added = [label_mappingB[label] for label in labels_added]
     nodes_removed = [label_mappingA[label] for label in labels_removed]
@@ -105,11 +105,11 @@ def compare(fileA, fileB):
         modified = [key for key in same if dataA[key] != dataB[key] and key != 'id']
         if len(added) or len(removed) or len(modified):
             #TODO: check handling for multi-edge
-            print "modified", label
+            print("modified", label)
             pprint.pprint(dataA)
             pprint.pprint(dataB)
             labels_modified.add(label)
-    print "Nodes modified:", ", ".join(sorted(labels_modified))
+    print("Nodes modified:", ", ".join(sorted(labels_modified)))
 
 #TODO: need to look at node properties
     
@@ -136,12 +136,12 @@ def compare(fileA, fileB):
 
     edges_common = set( (s,t) for (s,t) in graphA_reduced.edges() if graphB_reduced.has_edge(s,t))
     if edges_added:
-        print "Edges added:", ", ".join(sorted("(%s, %s)" % (s,t) for s,t in edges_added))
+        print("Edges added:", ", ".join(sorted("(%s, %s)" % (s,t) for s,t in edges_added)))
     if edges_removed:
-        print "Edges removed:", ", ".join(sorted("(%s, %s)" % (s,t) for s,t in edges_removed))
+        print("Edges removed:", ", ".join(sorted("(%s, %s)" % (s,t) for s,t in edges_removed)))
 
     edges_modified = set()
-    print "Edges modified:"
+    print("Edges modified:")
     for src, dst in edges_common:
         dataA = graphA_reduced[src][dst]
         if graphA.is_multigraph():
@@ -149,7 +149,7 @@ def compare(fileA, fileB):
                 dataA = graphA_reduced[src][dst][0] # use data for the only edge
             elif graphB.is_multigraph():
                 if graphA_reduced.number_of_edges(src) != graphB_reduced.number_of_edges(dst):
-                    print "Edge count differs for ", src, dst, "(", graphA_reduced.number_of_edges(src), "vs", graphB_reduced.number_of_edges(dst), ")"
+                    print("Edge count differs for ", src, dst, "(", graphA_reduced.number_of_edges(src), "vs", graphB_reduced.number_of_edges(dst), ")")
                     edges_modified.add( (src, dst))
 # both A and B are multigraphs, check the same edge count for node pair
         dataB = graphB_reduced[src][dst]
@@ -168,13 +168,13 @@ def compare(fileA, fileB):
 #TODO: better handling of multi edges here
         modified = [key for key in same if dataA[key] != dataB[key] and key != 'id']
         if len(modified):
-            print "same keys", same
-            print "modified keys", modified
+            print("same keys", same)
+            print("modified keys", modified)
         if len(added) or len(removed) or len(modified):
             #TODO: check handling for multi-edges
             edges_modified.add( (src, dst))
         for key in modified:
-            print src, dst, dataA[key], "->", dataB[key]
+            print(src, dst, dataA[key], "->", dataB[key])
 
 #TODO: save a graphml with the diffs marked up
     mappingA = dict ( (n, d.get("label")) for n, d in graphA.nodes(data=True))
@@ -187,7 +187,7 @@ def compare(fileA, fileB):
     
     composed = nx.compose(graphARelabelled, graphBRelabelled)
     if composed.is_multigraph():
-        print "Composed graph is multi-graph, converting to single-edge"
+        print("Composed graph is multi-graph, converting to single-edge")
         composed = nx.Graph(composed)
 
     for n in composed:

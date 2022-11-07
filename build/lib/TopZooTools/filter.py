@@ -10,7 +10,7 @@ import optparse
 import csv
 from collections import defaultdict
 import pprint
-import cPickle
+import pickle as cPickle
 
 def file_to_name(file_data, subset):
     return sorted([file_data[net]['Network'] for net in subset])
@@ -48,7 +48,7 @@ def main():
         network_files = glob.glob(options.directory + "*.gml")
 
     if len(network_files) == 0:
-        print "No files found. Please specify -f file or -d directory"
+        print("No files found. Please specify -f file or -d directory")
         sys.exit(0)
 
     if options.directory:
@@ -81,14 +81,14 @@ def main():
     country_info = {}
     country_info_file = 'country_info.data'
     if (os.path.isfile(country_info_file)):
-        country_info = cPickle.load(open(country_info_file, 'rb'))
+        country_info = cPickle.load(open(country_info_file, 'rb'),encoding='latin1')
         # Mapping of country to continent
         country_continents = dict( (d['Country'], d['Continent']) for d in
                                   country_info.values())
 
     if os.path.isdir(output_path):
         if len(os.listdir(output_path)) > 0:
-            print "WARNING: Output directory is not empty"
+            print("WARNING: Output directory is not empty")
     else:
         os.mkdir(output_path)  
 
@@ -104,7 +104,7 @@ def main():
         path, filename = os.path.split(net_file)
         network_name = os.path.splitext(filename)[0]
 
-        print "Reading: {0}".format(network_name)
+        print("Reading: {0}".format(network_name))
 
         #if network_files.index(net_file) > 20:
         #    break
@@ -117,7 +117,7 @@ def main():
             graph = nx.read_gpickle(pickle_file)
         else:
             # No pickle file, or is outdated
-            graph = nx.read_gml(net_file)
+            graph = nx.read_gml(net_file,label='id')
             nx.write_gpickle(graph, pickle_file)
 
         # Record the data for filtering
@@ -126,34 +126,34 @@ def main():
     #pprint.pprint(file_data)
 
     remove_list = []
-    print "Networks to remove: "
+    print("Networks to remove: ")
     if options.ip_only:
         non_ip = [net_file for net_file, data in file_data.items()
                   if not ('Layer' in data and data['Layer'] == 'IP')]
-        print "Non IP Networks: " + ", ".join(file_to_name(file_data, 
-                                                           non_ip))
+        print("Non IP Networks: " + ", ".join(file_to_name(file_data, 
+                                                           non_ip)))
         remove_list += non_ip
 
     if options.non_ixp:
         ixp = [net_file for net_file, data in file_data.items()
                     if data['IX'] == 1]
-        print "IXP Networks: " + ", ".join(file_to_name(file_data, 
-                                                        ixp))
+        print("IXP Networks: " + ", ".join(file_to_name(file_data, 
+                                                        ixp)))
         remove_list += ixp
     
     if options.unique_networks:
         non_unique_networks = []
-        freq_dict = defaultdict(list) 
+        freq_dict = defaultdict(list)
         # Dict format of 'Network Name': 'Unique entries'
         # eg 'Renater': ['renater_2004', 'renater_2006']
-        for net_file, data in file_data.items():
+        for net_file, data in list(file_data.items()):
             network_name = data['Network']
             freq_dict[network_name].append(net_file)
         # Keep only those with multiple entries
-        for key, val in freq_dict.items():
+        for key, val in list(freq_dict.items()):
             if len(val) <= 1:
                 del freq_dict[key]
-        for network, entries in freq_dict.items():
+        for network, entries in list(freq_dict.items()):
             #TODO: tidy up the nested else if statements
             # Find most recent date
             # Sorting using string comparison is fine as year is listed
@@ -186,8 +186,8 @@ def main():
             # sorting
             #TODO: just append the list?
             non_unique_networks += [e for e in entries_dated]
-        print "Non Unique Networks: " + ", ".join(file_to_name(file_data, 
-                                                        non_unique_networks))
+        print("Non Unique Networks: " + ", ".join(file_to_name(file_data, 
+                                                        non_unique_networks)))
         remove_list += non_unique_networks 
 
     if options.europe_nren_only:
@@ -233,7 +233,7 @@ def main():
         path, filename = os.path.split(net_file)
         network_name = os.path.splitext(filename)[0]
 
-        print "Filtering: {0}".format(network_name)
+        print("Filtering: {0}".format(network_name))
 
         #if network_files.index(net_file) > 20:
         #    break
@@ -245,7 +245,7 @@ def main():
             graph = nx.read_gpickle(pickle_file)
         else:
             # No pickle file, or is outdated
-            graph = nx.read_gml(net_file)
+            graph = nx.read_gml(net_file,label='id')
             nx.write_gpickle(graph, pickle_file)
 
         graph = graph.to_undirected()
@@ -261,7 +261,7 @@ def main():
         #TODO Update this to be true/false once netx fixes boolean quote bug
         if options.internal_only:
             external_nodes = [ n for n in graph.nodes()
-                              if graph.node[n]['Internal'] == 0]
+                              if graph.nodes[n]['Internal'] == 0]
             graph.remove_nodes_from(external_nodes)
         # ************
 
